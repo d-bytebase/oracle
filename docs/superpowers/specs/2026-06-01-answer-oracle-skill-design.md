@@ -56,7 +56,7 @@ Language detection **only selects the bank**; once selected, draw one line at ra
 SKILL.md instructs Claude to run one line of shell to draw, rather than picking itself:
 
 - Preferred: `shuf -n 1 answers-<lang>.txt`
-- Fallback (no `shuf`): `awk 'BEGIN{srand()} NF{a[++n]=$0} END{print a[int(rand()*n)+1]}' answers-<lang>.txt` (the `NF` guard skips blank lines so a trailing newline can't draw an empty answer)
+- Fallback (no `shuf` — common on macOS): `awk -v seed="$RANDOM" 'BEGIN{srand(seed)} NF{a[++n]=$0} END{print a[int(rand()*n)+1]}' answers-<lang>.txt`. Seed with `$RANDOM`, not the clock — bare `srand()` seeds from time-in-seconds, so rapid draws in the same second repeat. The `NF` guard skips blank lines so a trailing newline can't draw an empty answer.
 
 ## Content
 
