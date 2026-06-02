@@ -1,0 +1,12 @@
+{
+  "name": "oracle",
+  "owner": { "name": "d-bytebase" },
+  "description": "Marketplace for the oracle 🔮 skill.",
+  "plugins": [
+    {
+      "name": "oracle",
+      "source": "./",
+      "description": "A fortune-cookie-style skill: the oracle 🔮 draws a random playful, encouraging answer of the day (bilingual zh/en), independent of whatever you ask."
+    }
+  ]
+}

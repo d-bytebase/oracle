@@ -24,20 +24,27 @@ A fortune-cookie-style Claude Skill: `/oracle` draws a random **playful, encoura
 
 ## Form
 
-A single personal skill installed under `~/.claude/skills/`, usable in any project:
+A single skill, shipped as a **Claude Code plugin** so the repo doubles as its own
+marketplace — users install with `/plugin marketplace add d-bytebase/oracle` +
+`/plugin install oracle@oracle`, no file copying:
 
 ```
-~/.claude/skills/oracle/
-  SKILL.md
-  answers-zh.txt   (Chinese, 500 lines)
-  answers-en.txt   (English, 500 lines)
+oracle/                          (repo = marketplace + plugin)
+  .claude-plugin/
+    plugin.json
+    marketplace.json
+  skills/oracle/
+    SKILL.md
+    answers-zh.txt   (Chinese, 500 lines)
+    answers-en.txt   (English, 500 lines)
 ```
 
-Source files are version-controlled in this repo; sync to the skills directory after install.
+SKILL.md locates its answer banks via `${CLAUDE_PLUGIN_ROOT}/skills/oracle/`, with
+fallbacks for a manual `~/.claude/skills/oracle/` copy or running from the repo.
 
 ## Command
 
-- Main command: **`/oracle`** (pure ASCII).
+- The skill draws via **`/oracle`** in spirit; as a plugin it is namespaced **`/oracle:oracle`** (`plugin:skill`). Claude can also trigger it from the description.
 - Optional alias `/答案`: depends on whether Claude Code supports non-ASCII slash commands — add it if so, otherwise skip.
 
 ## Language detection

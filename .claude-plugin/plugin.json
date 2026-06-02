@@ -1,0 +1,9 @@
+{
+  "name": "oracle",
+  "description": "A fortune-cookie-style skill: the oracle 🔮 draws a random playful, encouraging answer of the day from a bilingual (Chinese / English) pool, independent of whatever you ask.",
+  "version": "1.0.0",
+  "author": { "name": "d-bytebase" },
+  "homepage": "https://github.com/d-bytebase/oracle",
+  "repository": "https://github.com/d-bytebase/oracle",
+  "keywords": ["fortune", "oracle", "answer", "bilingual", "fun"]
+}

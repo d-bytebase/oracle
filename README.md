@@ -1,7 +1,7 @@
 # oracle 🔮
 
-A fortune-cookie-style [Claude Code](https://claude.com/claude-code) skill. Type
-`/oracle` and it draws a random, playful, encouraging **answer of the day** from a
+A fortune-cookie-style [Claude Code](https://claude.com/claude-code) skill. Ask the
+oracle and it draws a random, playful, encouraging **answer of the day** from a
 pre-written pool — bilingual (Chinese / English), auto-detected, and independent of
 whatever you ask.
 
@@ -9,64 +9,32 @@ whatever you ask.
 
 ## Installation
 
-`oracle` is a **personal skill** — install it once into `~/.claude/skills/` and it
-works in every project. No build step, no dependencies.
+Install it from the Claude Code **plugin marketplace** — no file copying, no dependencies.
 
-### 1. Get the files
-
-```bash
-git clone https://github.com/d-bytebase/oracle.git
-cd oracle
-```
-
-(Or, if you already have the repo, just `cd` into it.)
-
-### 2. Copy the skill into place
-
-```bash
-mkdir -p ~/.claude/skills/oracle
-cp SKILL.md answers-zh.txt answers-en.txt ~/.claude/skills/oracle/
-```
-
-That's it. The skill needs only those three files: `SKILL.md` and the two answer
-banks. `shuf` is used if present and falls back to `awk` automatically, so there's
-nothing else to install (macOS works out of the box).
-
-### 3. Verify
-
-Start (or restart) Claude Code in any directory and run:
+In Claude Code, add this repo as a marketplace, then install the plugin:
 
 ```
-/oracle
+/plugin marketplace add d-bytebase/oracle
+/plugin install oracle@oracle
 ```
 
-You should get a 🔮 card with a random line. If `/oracle` isn't recognised, make sure
-the files landed at `~/.claude/skills/oracle/SKILL.md` and restart Claude Code so it
-picks up the new skill.
-
-### Updating
-
-Pull the latest and re-copy:
-
-```bash
-cd oracle && git pull
-cp SKILL.md answers-zh.txt answers-en.txt ~/.claude/skills/oracle/
-```
-
-### Uninstall
-
-```bash
-rm -rf ~/.claude/skills/oracle
-```
+The plugin bundles everything it needs (`SKILL.md` + the two answer banks). `shuf` is
+used if present and falls back to `awk` automatically, so macOS works out of the box.
+Use the `/plugin` menu to browse, update, or remove installed plugins.
 
 ## Usage
 
+Plugin skills are namespaced `plugin:skill`, so the command is `/oracle:oracle`:
+
 ```
-/oracle                 # answer in the conversation's language
-/oracle zh              # force Chinese
-/oracle en              # force English
-/oracle should I ship?  # ask a question (ritual only — the answer is unrelated)
+/oracle:oracle                 # answer in the conversation's language
+/oracle:oracle zh              # force Chinese
+/oracle:oracle en              # force English
+/oracle:oracle should I ship?  # ask a question (ritual only — the answer is unrelated)
 ```
+
+You can also just ask the oracle in plain language — Claude triggers the skill from its
+description.
 
 ## How it works
 

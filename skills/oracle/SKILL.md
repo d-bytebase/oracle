@@ -33,15 +33,20 @@ The language only chooses the **bank**. It never chooses the line.
 Run exactly one shell command. Set `LANG_CODE` to `zh` or `en` from Step 1:
 
 ```bash
-d="$HOME/.claude/skills/oracle"; [ -f "$d/answers-en.txt" ] || d="$(pwd)"
+d="${CLAUDE_PLUGIN_ROOT}/skills/oracle"                        # installed as a plugin (normal case)
+[ -f "$d/answers-en.txt" ] || d="$HOME/.claude/skills/oracle"  # manual personal-skill copy
+[ -f "$d/answers-en.txt" ] || d="$(pwd)/skills/oracle"         # running from the repo
+[ -f "$d/answers-en.txt" ] || d="$(pwd)"
 shuf -n 1 "$d/answers-${LANG_CODE}.txt" 2>/dev/null \
   || awk -v seed="$RANDOM" 'BEGIN{srand(seed)} NF{a[++n]=$0} END{print a[int(rand()*n)+1]}' "$d/answers-${LANG_CODE}.txt"
 ```
 
-`shuf` is preferred; the `awk` branch is the fallback when `shuf` is missing (common on
-macOS). The `awk` branch is seeded with `$RANDOM` rather than the clock so that draws in
-the same second don't repeat, and the `NF` guard skips blank lines. Use the command's
-output verbatim — never substitute your own choice.
+The answer files ship beside this skill; `${CLAUDE_PLUGIN_ROOT}` points at the installed
+plugin root, and the fallbacks cover a manual copy or running from the repo. `shuf` is
+preferred; the `awk` branch is the fallback when `shuf` is missing (common on macOS),
+seeded with `$RANDOM` rather than the clock so draws in the same second don't repeat,
+with the `NF` guard skipping blank lines. Use the command's output verbatim — never
+substitute your own choice.
 
 ## Step 3 — Present it
 
