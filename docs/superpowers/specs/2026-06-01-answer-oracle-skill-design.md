@@ -1,143 +1,103 @@
-# oracle 🔮 — 答案机 / Answer Oracle Skill 设计稿
+# oracle 🔮 — Answer Oracle Skill Design
 
-日期:2026-06-01
-状态:已与用户对齐(统一版),待实现
+Date: 2026-06-01
+Status: to be implemented
 
-## 一句话
+## In one line
 
-一个 fortune-cookie 风格的 Claude Skill,随机抽一句**童趣、鼓励、有趣**的话当"今日答案"。
-统一命令 `/oracle`,中英双语自动判定。灵感来自"答案之书 / 答案机",但**成品与任何品牌无关**。
+A fortune-cookie-style Claude Skill: `/oracle` draws a random **playful, encouraging** line as your "answer of the day", auto-detects Chinese/English, and is **independent of whatever you ask**.
 
-> 命名双关:**oracle = 神谕 🔮,又是数据库 Oracle**。Bytebase 做数据库工具,拿它当"答案机"的名字,圈内人会心一笑。
+> oracle = an oracle 🔮, and also a pun on the Oracle database.
 
-## 目标
+## Goals
 
-- 一个轻量、好玩、随手可用的"许愿/答案"小工具。
-- 抽签式(fortune cookie):答案是预写好的池子,随机抽一条,**与用户问什么无关**。
-- 双语合一:**一个命令 `/oracle`**,中英文各自独立的答案库,运行时自动判定走哪个库。
-- 真随机,不靠 Claude"自己挑"(避免偏向/重样)。
+- A lightweight, fun, grab-and-go "make a wish / get an answer" toy.
+- Fortune-cookie style: answers are a pre-written pool; draw one at random.
+- One bilingual command: a **single `/oracle`** with separate Chinese and English answer banks, picking the bank automatically at runtime.
+- Truly random: run one line of shell to draw, rather than letting Claude pick (avoids bias and repeats).
 
-## 非目标(Non-goals)
+## Non-goals
 
-- **不绑定任何品牌**:无麦当劳、无薯条/蘸酱/可乐、无任何食物或商业元素。oracle 仅取"神谕"之意,不蹭数据库 Oracle 商标。
-- **不读题作答**:不是 Claude 理解问题再生成答案;问题只是仪式,抽签与问题内容无关。语言判定只决定**抽哪个库**,不决定**抽哪一条**。
-- 不做 MCP / 服务端;纯 Skill 形态。
-- 不做联网、不做持久化统计(抽中记录等),先不要(YAGNI)。
+- **No brand ties**, no food / commercial elements. "oracle" means only "an oracle" — it does not trade on the Oracle database trademark.
+- **No reading the question to answer it**: the question is just ritual. Language detection only chooses **which bank**, never **which line**.
+- No MCP / server / network / persistent stats. Pure Skill.
 
-## 形态
+## Form
 
-**一个 personal skill**,装在 `~/.claude/skills/`,任何项目里都能用:
+A single personal skill installed under `~/.claude/skills/`, usable in any project:
 
 ```
-~/.claude/skills/
-  oracle/
-    SKILL.md
-    answers-zh.txt   (中文,500 条)
-    answers-en.txt   (English, 500 lines)
+~/.claude/skills/oracle/
+  SKILL.md
+  answers-zh.txt   (Chinese, 500 lines)
+  answers-en.txt   (English, 500 lines)
 ```
 
-源文件 + 生成脚本放在本仓库里做版本管理;装好后同步到上面的 skills 目录。
+Source files are version-controlled in this repo; sync to the skills directory after install.
 
-## 命令名
+## Command
 
-- 主命令:**`/oracle`**(纯 ASCII,稳)。
-- 可选中文别名 `/答案`:**取决于** Claude Code 是否支持非 ASCII slash command。
+- Main command: **`/oracle`** (pure ASCII).
+- Optional alias `/答案`: depends on whether Claude Code supports non-ASCII slash commands — add it if so, otherwise skip.
 
-### ⚠️ 实现第一步必须先验证
+## Language detection
 
-`/答案` 这种**中文名 slash command** Claude Code 是否支持(skill 名 / 命令名能否用非 ASCII)。
-- 若支持:额外加一个 `/答案` 别名,提升中文用户的"顺手"体验。
-- 若不支持:就只用 `/oracle`,不强求(统一成单一 ASCII 命令后,这已不是阻塞项)。
-这一步在写任何答案库之前先做。
+At runtime `/oracle` picks a bank by a priority ladder, **stopping at the first match**:
 
-## 语言判定(关键)
+1. **Forced switch**: argument is exactly `zh` / `en` → use that language.
+2. **Question language**: a question argument is present → detect the question's language (contains Chinese characters → Chinese bank, otherwise English bank).
+3. **Conversation language**: bare `/oracle` → follow the current conversation's language. (Runtime judgment, not unit-tested.)
+4. **System fallback**: still ambiguous → check `$LANG`: `case "$LANG" in zh*) Chinese ;; *) English ;; esac`
 
-`/oracle` 运行时按下面的**优先级梯子**决定抽哪个库,**第一个命中即停**:
+Language detection **only selects the bank**; once selected, draw one line at random with `shuf` as usual.
 
-1. **强制开关**:参数恰好是 `zh` 或 `en`(`/oracle zh` / `/oracle en`)→ 直接用该语言,不当作问题。
-2. **问题语言**:带了问题参数 → 看问题本身的语言(含中文字符 → 中文库,否则 → 英文库)。
-   - 例:`/oracle 我该不该辞职` → 中文;`/oracle should I quit` → 英文。
-3. **对话语言**:裸 `/oracle` 但当前会话在用某种语言 → 跟随对话语言。(这一档靠 Claude 运行时判断,非 shell 可测,不做单测)
-4. **系统语言兜底**:仍分不清(全新会话、第一句就敲裸 `/oracle`)→ 看 `$LANG`:
-   `case "$LANG" in zh*) 中文库 ;; *) 英文库 ;; esac`
+## Draw mechanism
 
-要点:语言判定**只选库**,选定后照旧 `shuf` 真随机抽一条,不破坏"不读题、真随机"。
+SKILL.md instructs Claude to run one line of shell to draw, rather than picking itself:
 
-## 声音 / 内容
+- Preferred: `shuf -n 1 answers-<lang>.txt`
+- Fallback (no `shuf`): `awk 'BEGIN{srand()} NF{a[++n]=$0} END{print a[int(rand()*n)+1]}' answers-<lang>.txt` (the `NF` guard skips blank lines so a trailing newline can't draw an empty answer)
 
-- 调性:**童趣 + 鼓励为主**,温柔、有趣、普世治愈,一点点玄学留白。(✨ 可作点缀 emoji)
-- 数量:中英文**各 500 条**。
-- 长度(适配卡片):中文**每条 ≤ 24 字**、英文**每条 ≤ 60 字符**,超长就在卡片内折两行(卡片最多两行)。
-- 为避免 500 条稀释/重样,按**系列**组织(抽签时全池随机,系列只是写作时的多样性保证):
-  - 勇气「去做吧」
-  - 治愈「没关系」
-  - 童心「今天当个小孩」
-  - 时机「再等等」(玄学留白)
-  - 玩闹 / 惊喜
-- 英文库镜像同样的系列,但是**原创英文**,不是中文的直译。
+## Content
 
-中文示例:
+- Tone: **playful + encouraging**, gentle and healing, with a touch of mystical open-endedness. ✨ as an accent.
+- Count: **500 unique lines** each for Chinese and English (dedup the pool so repeated draws don't repeat).
+- Length: short enough to read at a glance — Chinese **≤ 24 characters** / English **≤ 60 characters**.
+- Organized by **series** (variety guaranteed when writing; the full pool is random when drawing): courage, comfort, childlike wonder, timing, play. The English bank mirrors the same series but is **original**, not a translation.
+
+Examples:
+
 - 「今天不用长大,你已经很勇敢了。」
-- 「是的,去做吧——最坏的结果也没你想的那么坏。」
 - 「再等等,好东西正在路上,它只是迷路了一下下。」
-
-English 示例:
 - "Yes. Go do the brave little thing."
-- "It's okay to not be okay today. Tomorrow's still yours."
 - "The answer is closer than you think. Turn around."
 
-## 抽签机制
+## Output
 
-纯 Skill,但要**真随机**:SKILL.md 指示 Claude 跑一行 shell 抽一条,而不是自己挑。
+A 🔮 opener **in the chosen language**, then the answer on its own line as a blockquote. No fixed-width box — that avoids display-width math over CJK / emoji (easy to get wrong) and lets answers wrap naturally. An optional question argument is echoed for ritual only and **does not affect the draw**:
 
-- 首选:`shuf -n 1 answers-<lang>.txt`
-- 回退(无 `shuf`,如某些 macOS 默认环境):`awk` / `$RANDOM` 取随机行,例如
-  `awk 'BEGIN{srand()} {a[NR]=$0} END{print a[int(rand()*NR)+1]}' answers-<lang>.txt`
+```
+🔮 You give the crystal ball a shake…
 
-这样避免 Claude 自己挑导致的偏向、重样。
-
-## 输出 / 仪式感
-
-- 支持可选问题参数:`/oracle 我该不该辞职`。问题只是仪式,**不影响抽签**;输出时回显"你问 → 答案"增加仪式感。
-- 用水晶球 🔮 开场 + 小卡片框住答案:
+> It's okay not to grow up today — you're already brave.
+```
 
 ```
 🔮 你摇了摇水晶球…
 
-   ┌──────────────────────┐
-   │ 今天不用长大,         │
-   │ 你已经很勇敢了。       │
-   └──────────────────────┘
+> 今天不用长大,你已经很勇敢了。
 ```
 
-英文版同理:`✨/🔮 ... a little card ...`(以 🔮 为主)。
+## Success criteria
 
-## 内容生成方案
+- `/oracle` in any directory draws one answer with a 🔮 opener.
+- All four language-detection rungs work; repeated draws are visibly non-repetitive.
+- Each bank has 500 unique lines, no brand / food words, consistent tone.
+- `/oracle <question>` echoes the question but the answer is unrelated to it.
 
-1000 条手写不现实,用 workflow 按**系列分批 fan-out** 生成 + **去重**:
-- 每个系列一个 agent,产出该系列的 N 条(中/英分开)。
-- 汇总后做一次去重 + 质量过滤(去掉雷同句式、过长、跑题的)。
-- 不足 500 的系列补抽,直到各满 500。
-- 全程保证:无品牌/食物词、调性统一、长度适中(适合卡片)。
+## Testing
 
-## 项目改名
-
-`twinkle ✨` 退役,项目统一为 **oracle**(一个名字串起神谕 🔮 + 数据库 Oracle 的双关)。
-- 仓库 / 目录、skill 目录、命令、文档标题全部对齐 `oracle`。
-- 主图标 / icon:**🔮**(神谕水晶球,也是抽签开场道具)。✨ 不丢,降级成点缀 emoji / tagline。
-- 仓库目录与 git remote 的物理改名作为实现阶段的一步执行,不在设计稿内操作。
-
-## 成功标准
-
-- 在任意目录输入 `/oracle`(以及验证通过后的 `/答案` 别名)能抽到一条答案,带 🔮 卡片。
-- 语言判定按梯子生效:带中文问题出中文、带英文问题出英文、`/oracle zh|en` 能强制、裸命令跟 `$LANG`。
-- 连续抽多次明显不重样(真随机生效)。
-- 答案库各 500 条,无品牌/食物词,调性统一为童趣+鼓励。
-- `/oracle <问题>` 能回显问题但答案与问题无关。
-
-## 测试
-
-- 跑抽签命令 N 次(如 20 次),确认无报错、无重复偏向、卡片渲染正常。
-- 验证语言判定四档:中文问题 / 英文问题 / `/oracle zh|en` 强制 / 裸命令在 `LANG=zh_CN` 与 `LANG=en_US` 下的兜底。
-- 在没有 `shuf` 的环境验证回退分支。
-- 抽样人工读 ~30 条(中英各半),确认无品牌/食物词、无跑题、长度适合卡片。
+- Run the draw N times; confirm no errors, no repeat bias, clean rendering (opener + blockquote).
+- Verify all four language rungs: Chinese question / English question / `zh`|`en` forced / bare command falling back under `LANG=zh_CN` and `en_US`.
+- Verify the fallback branch in an environment without `shuf`.
+- Spot-read ~30 lines (half Chinese, half English); confirm no brand / food words, no off-topic lines, glanceable length.
