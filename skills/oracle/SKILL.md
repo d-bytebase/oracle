@@ -1,6 +1,6 @@
 ---
 name: oracle
-description: Use when the user types /oracle (or asks the oracle / answer machine / 答案机 / 答案之书 for an answer of the day, a fortune, or a yes-no / "should I…" wish). Draws one random playful, encouraging line from a pre-written bilingual pool (Chinese / English), independent of the question asked.
+description: Use when the user asks the oracle for an answer — "ask the oracle", "give me a fortune", "answer of the day", a yes/no or "should I…" wish, or 求签 / 抽一签 / 答案机 / 今日答案 — or runs /oracle:oracle. Draws one random, playful, encouraging line from a pre-written bilingual pool (Chinese / English); the draw is random and independent of the question asked.
 ---
 
 # oracle 🔮 — Answer Oracle
