@@ -124,7 +124,7 @@ English 示例:
 
 `twinkle ✨` 退役,项目统一为 **oracle**(一个名字串起神谕 🔮 + 数据库 Oracle 的双关)。
 - 仓库 / 目录、skill 目录、命令、文档标题全部对齐 `oracle`。
-- ✨ 不丢,留作 oracle 的点缀 emoji / tagline。
+- 主图标 / icon:**🔮**(神谕水晶球,也是抽签开场道具)。✨ 不丢,降级成点缀 emoji / tagline。
 - 仓库目录与 git remote 的物理改名作为实现阶段的一步执行,不在设计稿内操作。
 
 ## 成功标准
