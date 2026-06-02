@@ -1,4 +1,4 @@
-# 答案机 / Answer Oracle Skills — 设计稿
+# twinkle ✨ — 答案机 / Answer Oracle Skills 设计稿
 
 日期:2026-06-01
 状态:已与用户对齐,待实现
@@ -32,7 +32,7 @@
   lucky/   SKILL.md + answers.txt   (English, 500 lines)
 ```
 
-源文件 + 生成脚本放在本仓库 `honeybee/` 里做版本管理;装好后同步到上面的 skills 目录。
+源文件 + 生成脚本放在本仓库 `twinkle/` 里做版本管理;装好后同步到上面的 skills 目录。
 
 ### ⚠️ 实现第一步必须先验证
 
